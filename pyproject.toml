@@ -1,0 +1,25 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "edgeofpy"
+version = "0.0.1"
+authors = ["Jordan O'Byrne <jordan.obyrne@gmail.com>"]
+description = "Tools for brain criticality estimation, especially for M/EEG"
+license = "Apache-2.0"
+readme = "README.rst"
+repository = "https://github.com/jnobyrne/edgeofpy"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: Apache Software License"
+]
+
+[tool.poetry.dependencies]
+numpy = "*"
+scipy = "*"
+matplotlib = "*"
+powerlaw = "*"
+neurokit2 = "*"
