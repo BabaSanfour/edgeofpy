@@ -148,3 +148,5 @@ cython_debug/
 
 # Scripts
 scripts/
+
+.DS_Store

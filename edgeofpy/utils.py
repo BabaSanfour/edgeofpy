@@ -39,7 +39,7 @@ def binarized_events(data, threshold=3, thresh_type='both', null_value=0):
         below_thresh = data < lower_thresh_per_chan
     active = np.logical_or(above_thresh, below_thresh)
     
-    events = np.ones(data.shape, dtype=np.int) * null_value
+    events = np.ones(data.shape, dtype=int) * null_value
     for chan in range(data.shape[0]):
         start_end = _detect_start_end(active[chan, :])
         if start_end is not None:

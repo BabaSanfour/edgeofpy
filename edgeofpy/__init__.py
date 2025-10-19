@@ -20,6 +20,7 @@ from edgeofpy.avalanche import (detect_avalanches,
                                 fano_factor,
                                 )
 from edgeofpy.chaos import (z1_chaos_test,
+                            chaos_pipeline,
                             lambda_max,
                             minmaxsig,
                             )

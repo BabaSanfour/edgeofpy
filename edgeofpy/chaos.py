@@ -178,7 +178,8 @@ def lambda_max(data, s_freq, N, trial_len_sec=10):
     lambda_max : float
         The closeness of this value to 1 marks the distance to the edge of
         chaos.
-
+    norm_var : float
+        The normalized variance of the noise covariance matrix.
     c : 2d array
         integrated time-lagged covariance matrix, which is an estimate of noise
         covariance

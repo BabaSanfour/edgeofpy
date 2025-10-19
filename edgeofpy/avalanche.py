@@ -124,7 +124,6 @@ def plot_pdf(data, binning='d_lin', n_bins=100, xlabel=None, ylabel=None):
     if ylabel is None:
         ylabel = f'P({xlabel})'
     ax.set_ylabel(ylabel)
-    plt.show()
 
     return fig
 
@@ -296,7 +295,7 @@ def fit_powerlaw(data, xmin='min', xmax=None, discrete=True):
             'E_R_sum': E,
             'L_R_sum': L,}
 
-def fit_third_exponent(sizes, durations, discrete = True, method = 'pl'):
+def fit_third_exponent(sizes, durations, discrete=True, method='pl'):
     """Estimate the third exponent from avalanche sizes and durations.
 
     Parameters
@@ -324,7 +323,7 @@ def fit_third_exponent(sizes, durations, discrete = True, method = 'pl'):
 
     elif method == 'pl':
         if not discrete:
-            durations = np.round(durations,decimals=3)
+            durations = np.round(durations, decimals=3)
 
         # get average for size in one bin
         dur_avg = []
@@ -342,7 +341,7 @@ def fit_third_exponent(sizes, durations, discrete = True, method = 'pl'):
         third = fit.power_law.alpha
 
     else:
-        print('Chosen Method non valid. Method can be either lsf or pl. ' )
+        print('Chosen Method non valid. Method can be either lsf or pl.' )
         third = np.NaN
 
     return third
@@ -613,7 +612,7 @@ def avl_pattern_dissimilarity(repertoire, norm=False, similarity=False):
         avalanche, and 0 indicating that it was not.
     norm : bool
         If True, dissimilarity values will be normalized with respect to maximum 
-        possible dissimilarity. This is done automatically is `similarity` is 
+        possible dissimilarity. This is done automatically if `similarity` is 
         True.
     similarity : bool
         If True, similarity values (between 0 and 1) will be returned instead 
@@ -747,13 +746,13 @@ def susceptibility(events, test=False):
     return chi, ltf
 
 def fano_factor(data):
-    """Compute the Fano factor, which is the variance divided by the mean.
-    The Fano factor is maximized for critical processes.
+    """Compute the Fano factor, which for a counting process is the variance 
+    divided by the mean. The Fano factor is maximized for critical processes.
 
     Parameters
     ----------
     data : ndarray
-        DESCRIPTION.
+        Vector for a counting process.
 
     Returns
     -------
