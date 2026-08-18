@@ -11,17 +11,16 @@ Features
 - Avalanche criticality measures
     - Avalanche detection
     - Avalanche distribution plotting
-    - Power law fitting (via `powerlaw <https://github.com/jeffalstott/powerlaw>`_)
-    - Deviation from criticality coefficients (DCC)
+    - Power-law fitting (via `powerlaw <https://github.com/jeffalstott/powerlaw>`_)
+    - Deviation from criticality coefficient (DCC)
     - Shape collapse error
-    - Shew's kappa
-    - Avalanche reprtoire size and diversity
+    - Avalanche repertoire size and diversity
     - Branching ratios
     - Susceptibility
     - Fano factor
 
 - Edge of chaos measures
-    - 0-1 chaos tested
+    - 0-1 chaos test
     - Lambda max (Dahmen et al., 2019)
 
 - Edge of synchrony measures
@@ -30,6 +29,15 @@ Features
     - Phase lag entropy (PLE)
     - Global lability index (GLI)
     - Phase-locking avalanche detection
+
+- Ising model functions
+    - Fitting the spin-glass model by pseudo-likelihood maximization
+    - SK phase diagram inference (Ezaki et al., 2020)
+    - Metropolis-Hastings algorithm
+    - Heavy-tailed phase diagram inference
+    - Ising energy
+    - Specific heat
+    - Energy landscape sample
 
 
 Installation

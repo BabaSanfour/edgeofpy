@@ -127,19 +127,6 @@ def plot_pdf(data, binning='d_lin', n_bins=100, xlabel=None, ylabel=None):
 
     return fig
 
-def plot_third(sizes, durations, xlabel='Size', ylabel='Durations'):
-    fig, ax = plt.subplots()
-    ax.loglog(sizes, durations, 'b.')
-    if xlabel is None:
-        xlabel = 'x'
-    ax.set_xlabel(xlabel)
-    if ylabel is None:
-        ylabel = f'P({xlabel})'
-    ax.set_ylabel(ylabel)
-    plt.show()
-
-    return fig
-
 def plot_cdf(data):
     """Plot the cumulative distirbution function of the data in double
     logarithmic axes.
@@ -221,12 +208,12 @@ def fit_powerlaw(data, xmin='min', xmax=None, discrete=True):
             versus lognormal fit.
         best_fit : string
             Type of distribution yielding the best fit of the data can be 
-            P (power law), T (truncated power law with exponential upper cutoff), 
-            E (exponential), L (lognormal)
+            P (power law), T (truncated power law with exponential upper 
+            cutoff), E (exponential), L (lognormal)
         best_fit_R_sum : float
             The summary loglikelihood value for `best_fit`, which is the basis
-            for selecting `best_fit`. It is the max of the sums of loglikelihood 
-            values R for each fit function.
+            for selecting `best_fit`. It is the max of the sums of 
+            loglikelihood values R for each fit function.
 
     Notes
     -----
@@ -250,7 +237,8 @@ def fit_powerlaw(data, xmin='min', xmax=None, discrete=True):
     if xmax == 'max':
         xmax = max(data)
 
-    fit = powerlaw.Fit(data, xmin=xmin, xmax=xmax, discrete=discrete, verbose=False)
+    fit = powerlaw.Fit(data, xmin=xmin, xmax=xmax, discrete=discrete, 
+                       verbose=False)
 
     PvE = fit.distribution_compare('power_law', 'exponential',
                                    normalized_ratio=True)
@@ -308,20 +296,14 @@ def fit_third_exponent(sizes, durations, discrete=True, method='pl'):
         Whether the duration data is discrete (integers). Default is True.
         Only used when method is 'pl'
     method  : sting
-        'lsf' for using nonlinear least-squares fitting
         'pl' for using powerlaw fit
+        'lsf' for using nonlinear least-squares fitting
     Returns
     -------
     third : float
         Estimated 'third' power-law exponent.
     """
-    if method == 'lsf':
-        def func(x, a, b):
-            return a * x + b
-        (third, offset), _ = scipy.optimize.curve_fit(func, np.log(sizes),
-                                                      np.log(durations))
-
-    elif method == 'pl':
+    if method == 'pl':
         if not discrete:
             durations = np.round(durations, decimals=3)
 
@@ -337,8 +319,15 @@ def fit_third_exponent(sizes, durations, discrete=True, method='pl'):
             size_avg.append(np.mean(sizes[durations==d]))
 
         # fit using powerlaw to get exponent
-        fit = powerlaw.Fit(size_avg, discrete=True, verbose=False, xmin = min(size_avg))
+        fit = powerlaw.Fit(size_avg, discrete=True, verbose=False, 
+                           xmin=min(size_avg))
         third = fit.power_law.alpha
+
+    elif method == 'lsf':
+        def func(x, a, b):
+            return a * x + b
+        (third, offset), _ = scipy.optimize.curve_fit(func, np.log(sizes),
+                                                      np.log(durations))
 
     else:
         print('Chosen Method non valid. Method can be either lsf or pl.' )
@@ -404,7 +393,8 @@ def shape_collapse_error(avalanches, gamma, interp_n=1000):
     profiles = np.zeros((len(T_set), interp_n))
     for i, T in enumerate(T_set):
         avls_T = [x for x in avalanches if x['dur_bin'] == T]
-        avg_profile = np.mean(np.vstack([x['profile'] for x in avls_T]), axis=0)
+        avg_profile = np.mean(np.vstack([x['profile'] for x in avls_T]), 
+                              axis=0)
         norm_avg_profile = ( np.asarray(avg_profile, dtype='float')
                             / float(avg_profile.max()) )
         profiles[i, :] = np.interp(np.linspace(0, 1, interp_n),
@@ -519,61 +509,6 @@ def dcc_collapse(gamma, third):
 def dcc_collapse_2(tau, alpha, gamma):
     return np.abs( (alpha - 1) / (tau - 1) - (gamma + 1) )
 
-def shew_kappa(data, exponent='fitted', n_bins=10, discrete=True):
-    """Calculate Shew's kappa, an estimate of the closeness of the distribution
-    of `data` to a power law distribution.
-
-    In the original paper (Shew et al., 2009), the empirical distribution was
-    compared to a power law with exponent -3/2. The present implementation
-    allows the exponent (`alpha`) to be fitted from the data using the
-    powerlaw package, by setting `alpha` to 'fitted'.
-
-    Parameters
-    ----------
-    data : array-like
-        List of avalanche features, e.g. avalanche sizes.
-    exponent : str or float
-        The (positive) exponent of the reference power law. If set to
-        'fitted', then the exponent is estimating by fitting the data to a
-        power law.
-    n_bins : int
-        DESCRIPTION. The default is 10.
-    discrete : bool
-        DESCRIPTION. The default is True.
-
-    Returns
-    -------
-    kappa: float
-        Kappa is close to 1 for power law distributed data.
-
-    References
-    ----------
-    Shew et al. (2009) J Neurosci 29(49): 15595-15600.
-    """
-    # Create (complementary) cumulative distribution function (CDF)
-    cdf_x = np.sort(data)
-
-    if exponent == 'fitted':
-        # Fit data to a power law and obtain the critical exponent
-        fit = powerlaw.Fit(data, discrete=discrete, verbose=False)
-        exponent = fit.power_law.alpha
-
-    xmin = min(data)
-    xmax = max(data)
-    m = np.logspace(np.log(xmin), np.log(xmax), num=n_bins, base=np.e)
-
-    def cdf_ref(x, xmin, exponent):
-            return (x / xmin) ** (1 - exponent)
-
-    # Find empirical values matching the bins in m
-    empirical = np.zeros(n_bins)
-    for i, one_bin in enumerate(m):
-        empirical[i] = cdf_x[np.argmin(np.abs(cdf_x - one_bin))]
-
-    kappa = 1 + np.mean(cdf_ref(m, xmin, exponent) - empirical)
-
-    return kappa
-
 def avl_repertoire(avalanches):
     """Yields the number of unique avalanche patterns, where the pattern of an
     avalanche is the configuration of spatial nodes activated at least once by
@@ -611,9 +546,9 @@ def avl_pattern_dissimilarity(repertoire, norm=False, similarity=False):
         matrix is binary, with 1 indicating that the node was involved in the
         avalanche, and 0 indicating that it was not.
     norm : bool
-        If True, dissimilarity values will be normalized with respect to maximum 
-        possible dissimilarity. This is done automatically if `similarity` is 
-        True.
+        If True, dissimilarity values will be normalized with respect to 
+        maximum possible dissimilarity. This is done automatically if 
+        `similarity` is True.
     similarity : bool
         If True, similarity values (between 0 and 1) will be returned instead 
         of dissimilarity values.
@@ -621,9 +556,9 @@ def avl_pattern_dissimilarity(repertoire, norm=False, similarity=False):
     Returns
     -------
     dissimilarity : 2d matrix, dtype=int
-        The symmetrical n_pattern x n_pattern matrix of the dissimilarity between
-        each unique avalanche pattern in the repertoire, with 0 indicating
-        identity (zeros should only be found along the diagonal).
+        The symmetrical n_pattern x n_pattern matrix of the dissimilarity 
+        between each unique avalanche pattern in the repertoire, with 0 
+        indicating identity (zeros should only be found along the diagonal).
 
     References
     ----------
@@ -752,7 +687,7 @@ def fano_factor(data):
     Parameters
     ----------
     data : ndarray
-        Vector for a counting process.
+        Time series of event counts or amplitude
 
     Returns
     -------

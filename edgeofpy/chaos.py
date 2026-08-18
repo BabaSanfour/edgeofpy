@@ -51,55 +51,6 @@ def chaos_pipeline(data, sigma=0.5, denoise=False, downsample='minmax'):
 
     return K
 
-def chaos_pipeline_len(data, sigma=0.5, min_len_ratio=0.05, step_ratio=0.05):
-    """Simplified pipeline for the modified 0-1 chaos test emulating the
-    implementation from Toker et al. (2022, PNAS). This test assumes
-    that the signal is stationarity and deterministic. This version of the
-    function allows the setting of multiple data lengths, to observe the
-    convergence behaviour.
-
-    Parameters
-    ----------
-    data : 1d array
-        The (filtered) signal.
-    sigma : float, optional
-        Parameter controlling the level of noise used to suppress correlations.
-        The default is 0.5.
-    min_len_ratio : float, optional
-        The fraction of the full data length to use as the lower bound data
-        length.
-    step_ratio : float, optional
-        The fraction of the full data length to use as an interval between
-        successive data lengths.
-
-    Returns
-    -------
-    K: 1d array
-        Median K-statistic for each data length.
-    dat_lens : 1d array
-        The data lengths associated with each respective K-statistic.
-    T : int
-        Length of the downsampled data.
-    """
-    # Denoise data using Schreiber denoising algorithm
-    data = schreiber_denoise(data)
-    # Downsample data by preserving local minima
-    data = minmaxsig(data)
-    # Compute segment end times
-    T = len(data)
-    dat_lens = np.arange(int(T * min_len_ratio), T, int(T * step_ratio))
-
-    K = np.zeros(len(dat_lens))
-    for i, end in enumerate(dat_lens):
-        x = data[:end]
-        # normalize standard deviation of signal
-        x = x * 0.5 / np.std(x)
-        # modified 0-1 chaos test
-        K[i] = z1_chaos_test(x, sigma=sigma)
-
-    return K, dat_lens, T
-
-
 def z1_chaos_test(x, sigma=0.5, rand_seed=0):
     """Modified 0-1 chaos test. For long time series, the resulting K-statistic
     converges to 0 for regular/periodic signals and to 1 for chaotic signals.
@@ -146,9 +97,9 @@ def z1_chaos_test(x, sigma=0.5, rand_seed=0):
             # Calculate the (time-averaged) mean-square displacement,
             # subtracting a correction term (Gottwald & Melbourne, 2009)
             # and adding a noise term scaled by sigma (Dawes & Freeland, 2008)
-            M[n - 1]=(np.mean((p[n:N] - p[:N-n])**2 + (q[n:N]-q[:N-n])**2)
-                     - np.mean(x)**2 * (1-np.cos(n*c[its])) / (1-np.cos(c[its]))
-                     + sigma * (np.random.random()-.5))
+            M[n - 1] = (np.mean((p[n:N] - p[:N-n])**2 + (q[n:N]-q[:N-n])**2)
+                    - np.mean(x)**2 * (1-np.cos(n*c[its])) / (1-np.cos(c[its]))
+                    + sigma * (np.random.random()-.5))
 
         k_corr[its], _ = scipy.stats.pearsonr(t, M)
         median_k = np.median(k_corr)
@@ -352,24 +303,3 @@ def _integrated_timelag_cov(x):
     c = np.dot(c_tau, weights)
 
     return c
-
-# To do: implement stationarity test
-# To do: implement gaussian_transform
-def chaos_decision_tree(data, cutoff, stationarity_test=None,
-                        gaussian_transform=None,
-                        denoising_algorithm='schreiber',
-                        surrogate_algorithm='aaft_cpp', n_surr=1000,
-                        sigma=0.5):
-    if stationarity_test is not None:
-        pass
-    if gaussian_transform is not None:
-        pass
-    if surrogate_algorithm == 'aaft_cpp':
-        try:
-            surr, params = surrogate(data, n_surr, 'AAFT', 1, 1)
-        except:
-            z_data = ( data - np.mean(data) ) / np.std(data) # z-score
-            surr, params = surrogate(z_data, n_surr, 'AAFT', 1, 1)
-
-def surrogate():
-    pass

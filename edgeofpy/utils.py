@@ -74,7 +74,8 @@ def time_bin_events(events, bin_len):
         padded = np.concatenate((events, np.zeros(pad_len)))
     else:
         padded = events
-    binned = np.sum(padded.reshape(int(len(padded) / bin_len), bin_len), axis=1)
+    binned = np.sum(padded.reshape(int(len(padded) / bin_len), bin_len), 
+                    axis=1)
     
     return binned
 
