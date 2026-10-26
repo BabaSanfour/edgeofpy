@@ -69,7 +69,7 @@ def detect_avalanches(data, s_freq, time=None, max_iei=.004, threshold=3,
     Jannesari et al. (2020) Brain Structure and Function 225, 1169-83.
     """
 
-    if data.dtype is not np.dtype(int):
+    if not np.issubdtype(data.dtype, np.integer):
         # Detect events as the locations of peaks above threshold
         data = eop.binarized_events(data, threshold=threshold,
                                                thresh_type=thresh_type,
@@ -324,14 +324,15 @@ def fit_third_exponent(sizes, durations, discrete=True, method='pl'):
         third = fit.power_law.alpha
 
     elif method == 'lsf':
+        # <S>(T) ~ T^(1/sigma nu z): the slope of log size on log duration
         def func(x, a, b):
             return a * x + b
-        (third, offset), _ = scipy.optimize.curve_fit(func, np.log(sizes),
-                                                      np.log(durations))
+        (third, offset), _ = scipy.optimize.curve_fit(func, np.log(durations),
+                                                      np.log(sizes))
 
     else:
         print('Chosen Method non valid. Method can be either lsf or pl.' )
-        third = np.NaN
+        third = np.nan
 
     return third
 
@@ -713,7 +714,7 @@ def _det_avls(events, s_freq, time, max_iei):
     # Obtain inter-event intervals
     idx_events = np.where(np.asarray(events_one_chan, dtype=bool))[0]
     if len(idx_events) < 2:
-        return [], events_one_chan
+        return [], events_one_chan, np.nan
 
     iei = np.diff(idx_events)
     mean_iei = np.mean(iei) / s_freq
