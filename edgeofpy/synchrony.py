@@ -461,7 +461,7 @@ def detect_phase_avls(data, s_freq, phase_range, time=None, max_iei=0.024,
     locking_in = np.diff(in_phase, axis=1)
     # realign the time series
     locking_in = np.concatenate((np.zeros((N, 1)), locking_in), axis=1)
-    phase_avls, events_one_chan, _ = eop.avalanche._det_avls(locking_in, s_freq,
+    phase_avls, events_one_chan = eop.avalanche._det_avls(locking_in, s_freq,
                                                           time, max_iei)
 
     return phase_avls, events_one_chan
